@@ -1,20 +1,37 @@
-import { Controller, Post, Body, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { 
+  Controller, Post, Get, Patch, Delete, 
+  UseInterceptors, UploadedFile, Body, Param 
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ConstructionCasesService } from './construction-cases.service';
 
 @Controller('construction-cases')
 export class ConstructionCasesController {
-  constructor(private readonly constructionCasesService: ConstructionCasesService) {}
+  constructor(private readonly service: ConstructionCasesService) {}
 
-  @Post()
-  @UseInterceptors(FileInterceptor('file'))
-  async create(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() createDto: any,
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('image', {
+    dest: './temp',
+  }))
+  async uploadCase(
+    @UploadedFile() file: Express.Multer.File, 
+    @Body() body: any
   ) {
-    const imageInfo = await this.constructionCasesService.uploadAndConvert(file);
-    
-    // DB 저장 로직 (saveToDb 메서드 구현 후 연결)
-    return this.constructionCasesService.saveToDb({ ...createDto, ...imageInfo });
+    return this.service.createCase(file, body);
+  }
+
+  @Get()
+  async getAllCases() {
+    return this.service.findAll();
+  }
+
+  @Patch('reorder')
+  async reorderCases(@Body('ids') ids: string[]) {
+    return this.service.updateOrder(ids);
+  }
+
+  @Delete(':id')
+  async deleteCase(@Param('id') id: string) {
+    return this.service.remove(id);
   }
 }

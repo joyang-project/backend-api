@@ -27,7 +27,7 @@ export class ConstructionCase {
   image_url: string;
 
   @Column({ type: 'bigint', nullable: true })
-  size: number;
+  size: string;
 
   @Column({ default: 'image/webp' })
   mimetype: string;
