@@ -38,26 +38,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: SSH를 통해 서버에 배포
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/joyang-api:latest
             
-            docker stop joyang-api || true
-            docker rm joyang-api || true
+            docker network inspect joyang-network >/dev/null 2>&1 || \
+            docker network create joyang-network
+            
+            if [ "$(docker ps -aq -f name=joyang-api)" ]; then
+              docker rm -f joyang-api
+            fi
             
             docker run -d \
               --name joyang-api \
               --platform linux/arm64 \
               --restart always \
               -p 4000:4000 \
+              --network joyang-network \
               -v ~/joyang/api/uploads:/app/uploads \
               --env-file ~/joyang/api/.env \
-              --network joyang-network \
               ${{ secrets.DOCKERHUB_USERNAME }}/joyang-api:latest
-
+            
             docker image prune -f
