@@ -1,12 +1,6 @@
 FROM node:20-slim AS builder
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY package*.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
