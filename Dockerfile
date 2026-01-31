@@ -1,8 +1,11 @@
 FROM node:20-slim AS builder
 WORKDIR /app
 
+RUN npm install -g pnpm
+
 COPY package*.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 RUN pnpm run build
@@ -10,7 +13,7 @@ RUN pnpm run build
 FROM node:20-slim
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y openssl libvips-dev && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./

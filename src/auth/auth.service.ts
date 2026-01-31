@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException, Inject } from '
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
